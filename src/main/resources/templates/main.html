@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DATE MATE</title>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 첫 방문 쿠키 설정
+            const cookieName = "firstVisit";
+            if (document.cookie.indexOf(cookieName) === -1) {
+                alert("DATE MATE에 오신 것을 환영합니다!");
+                const expires = new Date();
+                expires.setDate(expires.getDate() + 1);
+                document.cookie = `${cookieName}=true; expires=${expires.toUTCString()}; path=/`;
+            }
+
+        });
+
+        const csrfMeta = document.querySelector('meta[name="_csrf"]');
+        const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+        if (csrfMeta && csrfHeaderMeta) {
+            window.csrfToken = csrfMeta.getAttribute("content");
+            window.csrfHeader = csrfHeaderMeta.getAttribute("content");
+        } else {
+            console.warn("CSRF 메타 태그를 찾을 수 없습니다.");
+        }
+
+
+        // 검색 함수
+        function search() {
+            const query = document.getElementById("queryInput").value.trim();
+            if (!query) {
+                alert("검색어를 입력하세요.");
+                return;
+            }
+
+            fetch(`/search?query=${encodeURIComponent(query)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error(res.status);
+                    return res.json();
+                })
+                .then(items => {
+                    const resultArea = document.getElementById("resultArea");
+                    resultArea.innerHTML = "";
+
+                    items.forEach(item => {
+                        const card = document.createElement("div");
+                        card.style = "border:1px solid #ccc; padding:10px; margin:10px 0;";
+                        card.innerHTML = `
+                            <h3>${item.title}</h3>
+                            <p><strong>전화번호:</strong> ${item.telephone}</p>
+                            <p><strong>카테고리:</strong> ${item.category}</p>
+                            <p><strong>주소:</strong> ${item.address}</p>
+                            ${item.imageLink ? `<img src="${item.imageLink}" width="200" />` : `<p>이미지 없음</p>`}
+                            <button class="add-btn">위시리스트 추가</button>
+                        `;
+
+                        card.querySelector(".add-btn").addEventListener("click", () => addToWishList(item));
+                        resultArea.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById("resultArea").innerText = "검색 실패. 다시 시도해주세요.";
+                });
+        }
+
+        // 위시리스트 저장
+        function addToWishList(dto) {
+            fetch('/wishlist', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [window.csrfHeader]: window.csrfToken
+                },
+                body: JSON.stringify(dto)
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error(res.status);
+                    return res.json();
+                })
+                .then(saved => {
+                    alert(`위시리스트에 저장되었습니다: ${saved.title}`);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('위시리스트 저장 중 오류가 발생했습니다.');
+                });
+        }
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <h3>맛집 검색</h3>
+    <div style="margin: 30px 0 20px 30px;">
+        <input id="queryInput" name="searchQuery" class="form-control me-sm-2" type="search"
+               placeholder="Search" style="display: inline-block; width: auto;">
+        <button class="btn btn-outline-dark my-2 my-sm-0" style="border-width: 1px;" onclick="search()">Search</button>
+    </div>
+
+    <div id="resultArea" style="margin-left: 30px;"></div>
+
+</div>
+</body>
+
+</html>
