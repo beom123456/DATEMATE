@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DATE MATE</title>
+
+    <!-- 스크립트 위치 이동 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 쿠키 확인
+            var cookieName = "firstVisit";
+            var visited = document.cookie.indexOf(cookieName) !== -1;
+
+            // 만약 쿠키가 없다면
+            if (!visited) {
+                // 환영 메시지
+                alert("DATE MATE에 오신 것을 환영합니다!");
+
+                // 쿠키 설정
+                var expires = new Date();
+                expires.setDate(expires.getDate() + 1);
+                document.cookie = cookieName + "=true; expires=" + expires.toUTCString() + "; path=/";
+            }
+        });
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+
+    <!-- 메인 배너 슬라이드 -->
+    <div id="carouselControls" class="carousel slide margin" data-ride="carousel">
+        <div class="carousel-inner justify-content-center">
+            <div class="carousel-item active item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage.png" alt="1 slide">
+            </div>
+            <div class="carousel-item item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage2.png" alt="2 slide">
+            </div>
+            <div class="carousel-item item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage3.png" alt="3 slide">
+            </div>
+            <div class="carousel-item item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage4.png" alt="4 slide">
+            </div>
+            <div class="carousel-item item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage5.png" alt="5 slide">
+            </div>
+            <div class="carousel-item item">
+                <img class="d-block w-100 mx-auto banner" src="/image/mainbannerimage6.png" alt="6 slide">
+            </div>
+        </div>
+    </div>
+
+    <!-- 검색결과 관련 부분 제거 -->
+
+    <div class="row">
+        <!-- 상품 리스트 반복문이 제거됨 -->
+        <!-- 추후 상품 목록을 여기에서 추가하면 됩니다. -->
+    </div>
+
+    <!-- 페이지네이션 부분 제거 -->
+
+</div>
+</body>
+
+</html>
